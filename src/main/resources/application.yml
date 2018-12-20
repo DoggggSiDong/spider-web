@@ -1,0 +1,9 @@
+server:
+  port: 9001
+  threadPoolSize: 20
+spring:
+  application:
+    name: spider-nest
+#logging:
+#  path: /home/ds02/bigdataplatform/logs
+
