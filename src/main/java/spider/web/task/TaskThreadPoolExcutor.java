@@ -3,10 +3,10 @@ package spider.web.task;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spder.task.Template;
 import spider.web.base.ApplicationProperties;
 import spider.web.entity.TASK_STATE;
 import spider.web.node.ZNodeManagement;
-import spider.web.template.Template;
 import spider.web.util.ZNodePathUtil;
 
 import java.util.concurrent.*;

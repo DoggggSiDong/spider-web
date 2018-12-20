@@ -2,8 +2,8 @@ package spider.web.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spider.web.entity.Task;
-import spider.web.template.Template;
+import spder.task.Task;
+import spder.task.Template;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

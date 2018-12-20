@@ -1,6 +1,7 @@
 package spider.web.template;
 
-import spider.web.entity.Task;
+import spder.task.Task;
+import spder.task.Template;
 
 public class TestTemplate extends Template {
     public TestTemplate(Task task) {

@@ -2,7 +2,7 @@ package spider.web.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spider.web.entity.Task;
+import spder.task.Task;
 import spider.web.node.ZNodeManagement;
 
 import java.util.HashMap;

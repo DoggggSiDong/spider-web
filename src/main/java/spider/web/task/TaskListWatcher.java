@@ -6,15 +6,11 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spder.task.Task;
 import spider.web.entity.TASK_STATE;
-import spider.web.entity.Task;
 import spider.web.node.ZNodeManagement;
-import spider.web.util.IpAddressUtil;
 import spider.web.util.ZNodePathUtil;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 @Component
 public class TaskListWatcher {
     private CuratorFramework client;
