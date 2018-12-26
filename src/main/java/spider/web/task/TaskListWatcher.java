@@ -7,9 +7,12 @@ import org.apache.curator.framework.recipes.cache.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spder.task.Task;
+import spider.web.base.ApplicationProperties;
 import spider.web.entity.TASK_STATE;
 import spider.web.node.ZNodeManagement;
 import spider.web.util.ZNodePathUtil;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class TaskListWatcher {
@@ -18,22 +21,25 @@ public class TaskListWatcher {
     private TaskPeriodManagement taskPeriodManagement;
     private final PathChildrenCache childrenCache;
     private ZNodeManagement zNodeManagement;
+    private ApplicationProperties applicationProperties;
     @Autowired
     public TaskListWatcher(CuratorFramework client,ZNodePathUtil zNodePathUtil,
-                           TaskPeriodManagement taskPeriodManagement, ZNodeManagement zNodeManagement) throws Exception {
+                           TaskPeriodManagement taskPeriodManagement, ZNodeManagement zNodeManagement,
+                           ApplicationProperties applicationProperties) throws Exception {
         this.client = client;
         this.zNodePathUtil = zNodePathUtil;
         this.zNodeManagement = zNodeManagement;
-        if (null == client.checkExists().forPath(zNodePathUtil.getTaskPath())) {
-            client.create().forPath(zNodePathUtil.getTaskPath(),null);
-        }
         this.taskPeriodManagement = taskPeriodManagement;
+        this.applicationProperties = applicationProperties;
         childrenCache = new PathChildrenCache(client, zNodePathUtil.getTaskPath(), true);
-        addNodeWatcher(childrenCache);
+
 
     }
+    @PostConstruct
+    private void initTaskListWatcher() throws Exception {
+        addNodeWatcher(childrenCache);
+    }
     private void addTask(CuratorFramework client, String uuid, String owner) throws Exception {
-        System.out.println("check in");
         Task task = new Task();
         task.setUuId(uuid);
         task.setOwner(owner);
@@ -42,7 +48,6 @@ public class TaskListWatcher {
         task.setTemplateName(info.get("templateName").toString().replace("\"",""));
         task.setPeriod(info.get("period").getAsInt());
         taskPeriodManagement.addPeriodTask(task);
-        System.out.println("add Task to pool");
     }
     private void addNodeWatcher(final PathChildrenCache childrenCache) throws Exception {
         childrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
@@ -56,13 +61,13 @@ public class TaskListWatcher {
                         switch (event.getType()) {
                             case CHILD_ADDED:
                                 owner = new String(client.getData().forPath(zNodePathUtil.getSpecifiedTaskOwnerPath(uuid)));
-                                if(owner.equals("01")){
+                                if(owner.equals(applicationProperties.getHostName())){
                                     addTask(client,uuid,owner);
                                 }
                                 break;
                             case CHILD_UPDATED:
                                 owner = new String(client.getData().forPath(zNodePathUtil.getSpecifiedTaskOwnerPath(uuid)));
-                                if(owner.equals("01")){
+                                if(owner.equals(applicationProperties.getHostName())){
                                     String state = new String(event.getData().getData());
                                     switch (state){
                                         case "wait_for_run":

@@ -1,9 +1,11 @@
 server:
-  port: 9001
   threadPoolSize: 20
 spring:
   application:
     name: spider-nest
+zookeeper:
+  retryTimes: 10
+  retryInterval: 5000
 #logging:
 #  path: /home/ds02/bigdataplatform/logs
 

@@ -7,6 +7,7 @@ import spder.task.Template;
 import spider.web.base.ApplicationProperties;
 import spider.web.entity.TASK_STATE;
 import spider.web.node.ZNodeManagement;
+import spider.web.resource.AccountResource;
 import spider.web.util.ZNodePathUtil;
 
 import java.util.concurrent.*;
@@ -16,19 +17,29 @@ public class TaskThreadPoolExcutor extends ThreadPoolExecutor {
     private ApplicationProperties applicationProperties;
     private ZNodeManagement zNodeManagement;
     private ZNodePathUtil zNodePathUtil;
+    private AccountResource accountResource;
     @Autowired
     public TaskThreadPoolExcutor(CuratorFramework client, ApplicationProperties applicationProperties,
-                                 ZNodeManagement zNodeManagement, ZNodePathUtil zNodePathUtil){
+                                 ZNodeManagement zNodeManagement, ZNodePathUtil zNodePathUtil,
+                                 AccountResource accountResource){
         super(applicationProperties.getThreadPoolSize(),applicationProperties.getThreadPoolSize()*2,0L,TimeUnit.SECONDS,new ArrayBlockingQueue<>(applicationProperties.getThreadPoolSize()));
         this.client = client;
         this.zNodeManagement = zNodeManagement;
         this.zNodePathUtil = zNodePathUtil;
+        this.accountResource = accountResource;
 
     }
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
         Template template = (Template)r;
-        System.out.println(template.getTask().toString());
+        if(template.ifNeedAcoount()) {
+            try {
+                template.setAccount(accountResource.getAccount());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(template.getTask().getUuId() + "get acoount resource");
         try{
             zNodeManagement.switchTaskNodeState(client,template.getTask().getUuId(), TASK_STATE.RUNNING);
         }catch (Exception e){
@@ -46,6 +57,13 @@ public class TaskThreadPoolExcutor extends ThreadPoolExecutor {
     protected void afterExecute(Runnable r, Throwable t) {
         Template template = null;
         template = (Template) r;
+        if(template.ifNeedAcoount()) {
+            try {
+                accountResource.returnAccount(template.getAccount());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         if(t != null){
             try{
                 zNodeManagement.switchTaskNodeState(client,template.getTask().getUuId(), TASK_STATE.RUNNING_ERROR);

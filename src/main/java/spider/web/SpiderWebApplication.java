@@ -6,6 +6,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 @SpringBootApplication
 public class SpiderWebApplication {
     public static void main(String args[]){
-        new SpringApplicationBuilder(SpiderWebApplication.class).run();
+        new SpringApplicationBuilder(SpiderWebApplication.class).run(args);
     }
 }

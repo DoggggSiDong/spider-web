@@ -3,38 +3,28 @@ package spider.web.base;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import spider.web.util.IpAddressUtil;
 import spider.web.util.ZNodePathUtil;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
 
 @Component
 public class ServerRegister {
     private CuratorFramework client;
     private ZNodePathUtil zNodePathUtil;
+    private String serverName;
     private ApplicationProperties applicationProperties;
-    private IpAddressUtil ipAddressUtil;
     @Autowired
-    public ServerRegister(CuratorFramework client, ZNodePathUtil zNodePathUtil,
-                          ApplicationProperties applicationProperties, IpAddressUtil ipAddressUtil){
+    public ServerRegister(CuratorFramework client, ZNodePathUtil zNodePathUtil,ApplicationProperties applicationProperties){
         this.client = client;
         this.zNodePathUtil = zNodePathUtil;
         this.applicationProperties = applicationProperties;
-        this.ipAddressUtil = ipAddressUtil;
-        InetAddress inetAddress = null;
+    }
+    @PostConstruct
+    public void registerServer(){
         try {
-             inetAddress = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        String host = inetAddress.getHostName();
-        String ip = inetAddress.getHostAddress();
-        String port = applicationProperties.getPort();
-        System.out.println();
-        try {
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(zNodePathUtil.getSpecifiedSpiderWebNodePath("01"),null);
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(zNodePathUtil.getSpecifiedSpiderWebNodePath(applicationProperties.getHostName()),null);
         } catch (Exception e) {
             e.printStackTrace();
         }
